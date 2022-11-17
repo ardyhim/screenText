@@ -1,4 +1,9 @@
 <script lang='ts'>
+    import { db } from '../../firebase';
+    const docMessage = db.collection("screen").doc("text");
+    docMessage.onSnapshot((d)=> {
+      message = d.data()!.message;
+    })
    export let message = "";
   </script>
   
