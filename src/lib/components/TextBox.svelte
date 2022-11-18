@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { auth, googleProvider, db } from '../../firebase';
 	import { authState } from 'rxfire/auth';
 	import { getAuth } from 'firebase/auth';

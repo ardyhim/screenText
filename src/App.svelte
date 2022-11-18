@@ -1,8 +1,10 @@
 <script>
   import ScreenText from "./lib/components/screenText.svelte";
   import TextBox from "./lib/components/TextBox.svelte";
+  const urlParams = new URLSearchParams(location.search);
   let chat = false;
-  if (location.pathname == "/chat") chat = true;
+  if (urlParams.get("chat") == "1") chat = true;
+  else chat = false;
 </script>
 
 <div class="app">
