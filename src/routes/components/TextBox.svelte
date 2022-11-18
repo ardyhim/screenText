@@ -34,7 +34,6 @@
 	};
 
 	function speech() {
-		console.log(lang);
 		const utterThis = new SpeechSynthesisUtterance(message);
 		utterThis.voice = lang;
 		synth.speak(utterThis);
@@ -43,7 +42,7 @@
 
 <main>
 	<div class="absolute bottom-0 p-3 rounded-t-lg bg-zinc-800 w-full h-auto">
-		{#if !user}
+		{#if user}
 			<div class="flex">
 				<div class="grow">
 					<textarea
