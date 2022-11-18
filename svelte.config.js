@@ -1,5 +1,5 @@
-import adapter from '@sveltejs/adapter-auto';
 import preprocess from 'svelte-preprocess';
+import firebase from "svelte-adapter-firebase";
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -7,12 +7,12 @@ const config = {
 	// for more information about preprocessors
 	preprocess: [
 		preprocess({
-		  postcss: true,
+			postcss: true,
 		}),
-	  ],
+	],
 
 	kit: {
-		adapter: adapter()
+		adapter: firebase(),
 	}
 };
 

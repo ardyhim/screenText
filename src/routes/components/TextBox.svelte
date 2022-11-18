@@ -2,29 +2,43 @@
 	import { onMount } from 'svelte';
 	import { auth, googleProvider, db } from '../../firebase';
 	import { authState } from 'rxfire/auth';
+	import { getAuth } from 'firebase/auth';
+	import { browser } from '$app/environment';
 	let synth: SpeechSynthesis;
 	let voices: SpeechSynthesisVoice[] = [];
 
 	let user: any;
 
-	const unsubscribe = authState(auth).subscribe((u) => (user = u));
+	let unsubscribe: any;
 
 	function login() {
 		auth.signInWithPopup(googleProvider);
 	}
-	onMount(() => {
-		synth = window.speechSynthesis;
-		synth.getVoices().filter((voice)=>{
-			if(voice.lang == "id-ID" || voice.lang == "jv-ID" || voice.lang == "su-ID"  || voice.lang == "en-AU" || voice.lang == "en-US" || voice.lang == "en-UK" ){
-				voices.push(voice);
-			}
-		});
+	onMount(async () => {
+		if (browser) {
+			unsubscribe = authState(getAuth()).subscribe((u) => (user = u));
+			synth = window.speechSynthesis;
+			setTimeout(() => {
+				voices = synth.getVoices().filter((voice) => {
+					if (
+						voice.lang == 'id-ID' ||
+						voice.lang == 'jv-ID' ||
+						voice.lang == 'su-ID' ||
+						voice.lang == 'en-AU' ||
+						voice.lang == 'en-US' ||
+						voice.lang == 'en-UK'
+					) {
+						return voice;
+					}
+				});
+			}, 100);
+		}
 	});
-	let lang=voices[15];
-
+	let lang: any;
+	let utterThis: SpeechSynthesisUtterance;
 	let message = '';
-	let timer: any;
 
+	let timer: any;
 	const debounce = (v: any) => {
 		clearTimeout(timer);
 		timer = setTimeout(() => {
@@ -34,33 +48,51 @@
 	};
 
 	function speech() {
-		const utterThis = new SpeechSynthesisUtterance(message);
+		utterThis = new SpeechSynthesisUtterance(message);
 		utterThis.voice = lang;
 		synth.speak(utterThis);
 	}
 </script>
 
 <main>
-	<div class="absolute bottom-0 p-3 rounded-t-lg bg-zinc-800 w-full h-auto">
+	<div class="absolute bottom-0 p-3 rounded-t-lg bg-zinc-800 w-full h-32">
 		{#if user}
 			<div class="flex">
 				<div class="grow">
 					<textarea
-						class="bg-zinc-600 text-zinc-100 rounded p-2 w-full text-xl"
+						class="bg-zinc-600 text-zinc-100 rounded p-2 w-full h-auto text-xl"
 						on:input={debounce}
 					/>
 				</div>
-				<div>
+				<div class="flex-row">
 					<select bind:value={lang} class="rounded bg-zinc-600 p-2 mx-2" id="voice">
 						{#each voices as voice}
 							<option value={voice} class="bg-zinc-800  text-zinc-500">{voice.name}</option>
 						{/each}
 					</select>
-				</div>
-				<div class="">
-					<button on:click={speech} class="h-auto mx-2 p-3 text-center rounded bg-zinc-500">
-						TTS
-					</button>
+					<div class="mt-2">
+						<button on:click={speech} class="h-auto mx-2 p-3 text-center rounded bg-zinc-500">
+							PLAY
+						</button>
+						<button
+							on:click={() => synth.cancel()}
+							class="h-auto mx-2 p-3 text-center rounded bg-zinc-500"
+						>
+							STOP
+						</button>
+						<button
+							on:click={() => synth.pause()}
+							class="h-auto mx-2 p-3 text-center rounded bg-zinc-500"
+						>
+							PAUSE
+						</button>
+						<button
+							on:click={() => synth.resume()}
+							class="h-auto mx-2 p-3 text-center rounded bg-zinc-500"
+						>
+							RESUME
+						</button>
+					</div>
 				</div>
 			</div>
 		{:else}
