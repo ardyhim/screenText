@@ -3,7 +3,7 @@
 	import { auth, googleProvider, db } from '../../firebase';
 	import { authState } from 'rxfire/auth';
 	let synth: SpeechSynthesis;
-	let voices: SpeechSynthesisVoice[];
+	let voices: SpeechSynthesisVoice[] = [];
 
 	let user: any;
 
@@ -14,8 +14,13 @@
 	}
 	onMount(() => {
 		synth = window.speechSynthesis;
-		voices = synth.getVoices();
+		synth.getVoices().filter((voice)=>{
+			if(voice.lang == "id-ID" || voice.lang == "jv-ID" || voice.lang == "su-ID"  || voice.lang == "en-AU" || voice.lang == "en-US" || voice.lang == "en-UK" ){
+				voices.push(voice);
+			}
+		});
 	});
+	let lang=voices[15];
 
 	let message = '';
 	let timer: any;
@@ -29,31 +34,39 @@
 	};
 
 	function speech() {
+		console.log(lang);
 		const utterThis = new SpeechSynthesisUtterance(message);
-		utterThis.voice = voices[159];
+		utterThis.voice = lang;
 		synth.speak(utterThis);
 	}
 </script>
 
 <main>
 	<div class="absolute bottom-0 p-3 rounded-t-lg bg-zinc-800 w-full h-auto">
-		{#if user}
+		{#if !user}
 			<div class="flex">
-				<div class="grow ">
+				<div class="grow">
 					<textarea
 						class="bg-zinc-600 text-zinc-100 rounded p-2 w-full text-xl"
 						on:input={debounce}
 					/>
 				</div>
+				<div>
+					<select bind:value={lang} class="rounded bg-zinc-600 p-2 mx-2" id="voice">
+						{#each voices as voice}
+							<option value={voice} class="bg-zinc-800  text-zinc-500">{voice.name}</option>
+						{/each}
+					</select>
+				</div>
 				<div class="">
-					<button on:click={speech} class="h-auto m-2 p-3 text-center rounded bg-zinc-500">
+					<button on:click={speech} class="h-auto mx-2 p-3 text-center rounded bg-zinc-500">
 						TTS
 					</button>
 				</div>
 			</div>
 		{:else}
 			<div class="">
-				<button on:click={login} class="h-auto w-full m-2 p-3 text-center rounded bg-zinc-500">
+				<button on:click={login} class="h-auto w-full p-3 text-center rounded bg-zinc-500">
 					LOGIN
 				</button>
 			</div>
